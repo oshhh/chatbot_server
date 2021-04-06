@@ -13,8 +13,8 @@ NEO4J_PASSWORD = os.getenv('NEO4J_PASSWORD')
 
 
 qa_helper.init_kg(NEO4J_USERNAME, NEO4J_PASSWORD)
-qa_helper.init_bert()
-qa_helper.init_mrc()
+# qa_helper.init_bert()
+# qa_helper.init_mrc()
 
 hostName = "localhost"
 serverPort = 8080
@@ -33,16 +33,16 @@ class MyServer(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_headers()
             self.wfile.write(json.dumps({'query': data['query'], 'sentences': sentences}).encode('utf-8'))
-        elif self.path == '/mrc':
-            sentences = qa_helper.find_answer_from_mrc(data['query'], data['sentences'])
-            self.send_response(200)
-            self.send_headers()
-            self.wfile.write(json.dumps({'query': data['query'], 'sentences': sentences}).encode('utf-8'))
-        elif self.path == '/bert':
-            sentences = qa_helper.find_answer_from_bert(data['query'], data['sentences'])
-            self.send_response(200)
-            self.send_headers()
-            self.wfile.write(json.dumps({'query': data['query'], 'sentences': sentences}).encode('utf-8'))
+        # elif self.path == '/mrc':
+        #     sentences = qa_helper.find_answer_from_mrc(data['query'], data['sentences'])
+        #     self.send_response(200)
+        #     self.send_headers()
+        #     self.wfile.write(json.dumps({'query': data['query'], 'sentences': sentences}).encode('utf-8'))
+        # elif self.path == '/bert':
+        #     sentences = qa_helper.find_answer_from_bert(data['query'], data['sentences'])
+        #     self.send_response(200)
+        #     self.send_headers()
+        #     self.wfile.write(json.dumps({'query': data['query'], 'sentences': sentences}).encode('utf-8'))
         elif self.path == '/get_sentence_details':
             neighbouring_sentences, document = qa_helper.get_sentence_details(data['sentence'])
             self.send_response(200)
