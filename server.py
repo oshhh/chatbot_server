@@ -4,6 +4,7 @@ import uuid
 import sys
 sys.path.insert(1, '/Users/osheensachdev/btp/iiitd_policy_chatbot/notebooks/')
 import qa_helper
+import qa_model
 from dotenv import load_dotenv
 import os
 
@@ -12,7 +13,8 @@ NEO4J_USERNAME = os.getenv('NEO4J_USERNAME')
 NEO4J_PASSWORD = os.getenv('NEO4J_PASSWORD')
 
 
-qa_helper.init_kg(NEO4J_USERNAME, NEO4J_PASSWORD)
+# qa_helper.init_kg(NEO4J_USERNAME, NEO4J_PASSWORD)
+qa_model.init(NEO4J_USERNAME, NEO4J_PASSWORD)
 # qa_helper.init_bert()
 # qa_helper.init_mrc()
 
@@ -23,26 +25,16 @@ sessions = {}
 
 class MyServer(BaseHTTPRequestHandler):
     def do_GET(self):
-        self.handle_error('GET request not accepted')
-    
+        self.handle_error("GET request not accepted")
+
     def do_POST(self):
         data = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
 
-        if self.path == '/shortlist_sentences':
-            sentences = qa_helper.shortlist_sentences(data['query'])
+        if self.path == '/get_answer':
+            sentences = qa_model.find_answer(data['query'])
             self.send_response(200)
             self.send_headers()
-            self.wfile.write(json.dumps({'query': data['query'], 'sentences': sentences}).encode('utf-8'))
-        # elif self.path == '/mrc':
-        #     sentences = qa_helper.find_answer_from_mrc(data['query'], data['sentences'])
-        #     self.send_response(200)
-        #     self.send_headers()
-        #     self.wfile.write(json.dumps({'query': data['query'], 'sentences': sentences}).encode('utf-8'))
-        # elif self.path == '/bert':
-        #     sentences = qa_helper.find_answer_from_bert(data['query'], data['sentences'])
-        #     self.send_response(200)
-        #     self.send_headers()
-        #     self.wfile.write(json.dumps({'query': data['query'], 'sentences': sentences}).encode('utf-8'))
+            self.wfile.write(json.dumps({'query':data['query'], 'sentences': sentences}).encode('utf-8'))
         elif self.path == '/get_sentence_details':
             neighbouring_sentences, document = qa_helper.get_sentence_details(data['sentence'])
             self.send_response(200)
@@ -63,17 +55,16 @@ class MyServer(BaseHTTPRequestHandler):
             return
 
     def handle_error(self, error):
-            self.send_response(400)
-            self.send_headers()
-            self.wfile.write(('Error: ' + error).encode('utf-8'))  
+        self.send_response(400)
+        self.send_headers()
+        self.wfile.write(('Error: ' + error).encode('utf-8'))  
 
     def send_headers(self):
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.send_header('Access-Control-Allow-Headers', '*')
-            self.send_header('Access-Control-Allow-Methods', '*')
-            self.send_header("Content-Type", "application/json")
-            self.end_headers()
-
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Headers', '*')
+        self.send_header('Access-Control-Allow-Methods', '*')
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
 
 
 if __name__ == "__main__":        
