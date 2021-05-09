@@ -2,20 +2,19 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import uuid 
 import sys
-sys.path.insert(1, 'C:/Users/mohni/Desktop/github_chatbot/iiitd_policy_chatbot/notebooks')
+sys.path.insert(1, 'C:/osheen/btp/iiitd_policy_chatbot/notebooks')
 import qa_helper
 import qa_model
 from dotenv import load_dotenv
 import os
 
 
-
 load_dotenv()
-# NEO4J_USERNAME = os.getenv('NEO4J_USERNAME')
-# NEO4J_PASSWORD = os.getenv('NEO4J_PASSWORD')
+NEO4J_USERNAME = os.getenv('NEO4J_USERNAME')
+NEO4J_PASSWORD = os.getenv('NEO4J_PASSWORD')
 
-qa_model.init("NEO4J_USERNAME", "NEO4J_PASSWORD")
-
+qa_model.init(NEO4J_USERNAME, NEO4J_PASSWORD)
+qa_helper.init_spellcheck()
 hostName = "localhost"
 serverPort = 8080
 
@@ -48,6 +47,11 @@ class MyServer(BaseHTTPRequestHandler):
 			self.send_response(200)
 			self.send_headers()
 			self.wfile.write(json.dumps({'nodes': nodes, 'edges': edges}).encode('utf-8'))
+		elif self.path == '/correct_text':
+			corrected_text = qa_helper.spellcheck(data['text'])
+			self.send_response(200)
+			self.send_headers()
+			self.wfile.write(json.dumps({'corrected_text': corrected_text, 'text': data['text']}).encode('utf-8'))
 		else:
 			self.handle_error('invalid request path')
 			return
