@@ -1,11 +1,8 @@
 import json
 import csv
-from docx import Document
 import re
 import spacy
 import neuralcoref
-import nltk
-from nltk.corpus import wordnet
 from nltk.wsd import lesk
 from nltk.tokenize import sent_tokenize
 from nltk.stem import PorterStemmer 
