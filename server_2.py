@@ -1,8 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import uuid 
-import sys
-sys.path.insert(1, 'C:/osheen/btp/iiitd_policy_chatbot/notebooks')
 import qa_helper
 import qa_model
 from dotenv import load_dotenv
@@ -13,7 +11,8 @@ load_dotenv()
 NEO4J_USERNAME = os.getenv('NEO4J_USERNAME')
 NEO4J_PASSWORD = os.getenv('NEO4J_PASSWORD')
 
-qa_model.init(NEO4J_USERNAME, NEO4J_PASSWORD)
+qa_model.init()
+qa_helper.init_kg(NEO4J_USERNAME, NEO4J_PASSWORD)
 qa_helper.init_spellcheck()
 hostName = "localhost"
 serverPort = 8080
@@ -22,7 +21,13 @@ sessions = {}
 
 class MyServer(BaseHTTPRequestHandler):
 	def do_GET(self):
-		self.handle_error("GET request not accepted")
+		if self.path == "/sources":
+			sources = qa_helper.get_documents()
+			self.send_response(200)
+			self.send_headers()
+			self.wfile.write(json.dumps({'sources': sources}).encode('utf-8'))
+		else:
+			self.handle_error("GET request not accepted")
 
 	def do_POST(self):
 		data = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
